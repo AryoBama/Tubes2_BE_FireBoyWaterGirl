@@ -1,7 +1,7 @@
 package types
 
 type RecipeNode struct {
-	Element     string       `json:"element"`    
+	Element     string       `json:"element"`
 	Combination []IngredientPair     `json:"combination,omitempty"`
 	Children    []RecipeNode  `json:"children,omitempty"`
 }
@@ -13,6 +13,7 @@ type RecipeTree struct {
 
 type Combo struct{
 	ID     int      `json:"id"`
+	ParentId int	`json:"parentId"`
     Inputs []string `json:"inputs"`
     Output string   `json:"output"`
 }

@@ -6,38 +6,35 @@ import(
 	"net/http"
 	"github.com/gorilla/mux"
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
-	"Tubes2_BE_FireBoyWaterGirl/src/internal/scrapper"
 	"encoding/json"
 	"unicode"
 )
 
 type Handler struct{
-
+	Graph types.RecipeGraph
 }
 
-func NewHandler() *Handler{
+func NewHandler(graph types.RecipeGraph) *Handler{
 	return &Handler{
+		Graph: graph,
 	}
 }
 func (h *Handler) HandleGetRecipe(router *mux.Router) {
 
-	recipes := scrapper.ScrapRecipe()
-
-	router.HandleFunc("/bfs", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/api/bfs", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(recipes.ShowRecipes()))
+		w.Write([]byte(h.Graph.ShowRecipes()))
 	}).Methods(http.MethodGet)
 
 
-	router.HandleFunc("/bfs/{target}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/api/bfs/{target}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		target := string(unicode.ToUpper(rune(vars["target"][0]))) + vars["target"][1:]
 		var combos []types.Combo
 
-		GetRecipeBFS(recipes, target, &combos)
+		GetRecipeBFS(&h.Graph, target, &combos, 100)
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("bfs" + target + "\n"))
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"combos": combos,
 		})

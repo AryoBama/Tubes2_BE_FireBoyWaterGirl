@@ -2,74 +2,69 @@ package bfs
 
 import (
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
+	"math"
 	"sync"
 )
 
-func GetRecipeBFS(graph *types.RecipeGraph, target string, combos *[]types.Combo) {
-	queue := []string{target}
-	
-	inQueue := make(map[string]bool)
-	inQueue[target] = true
-	
-	processedCombos := make(map[string]bool)
-	
+func GetRecipeBFS(graph *types.RecipeGraph, target string, combos *[]types.Combo, nRecipe int) {
+	temp := types.IngredientPair{target}
+	queue := []types.IngredientPair{temp}
+	parent := -1;
+
 	var mu sync.Mutex
 	
 	for len(queue) > 0 {
 		currentNode := queue[0]
 		queue = queue[1:]
-		
-		mu.Lock()
-		inQueue[currentNode] = false
-		mu.Unlock()
-		
-		if graph.IsLeaf(currentNode) {
-			continue
-		}
 
-		recipes := graph.Recipes[currentNode]
-		
-		var wg sync.WaitGroup
-		for _, recipe := range recipes {
-			wg.Add(1)
+		for _, element := range currentNode{
+
+			if graph.IsLeaf(element) {
+				continue
+			}
 			
-			go func(rec types.IngredientPair, output string) {
-				defer wg.Done()
+			recipes := graph.Graph[element]
+			
+			var wg sync.WaitGroup
+	
+			listRecipe := graph.FilterTier(element)
+	
+			for i := 0; i < int(math.Min(float64(nRecipe),float64(len(listRecipe)))); i++{
 				
-				comboKey := rec[0] + "," + rec[1] + "->" + output
-				
-				mu.Lock()
-				if processedCombos[comboKey] {
-					mu.Unlock()
-					return
-				}
-				
-				processedCombos[comboKey] = true
-				
-				*combos = append(*combos, types.Combo{
-					ID:     len(*combos),
-					Inputs: []string{rec[0], rec[1]},
-					Output: output,
-				})
-				mu.Unlock()
-				
-				for i := 0; i < 2; i++ {
-					ingredient := rec[i]
-					
-					if graph.IsLeaf(ingredient) {
-						continue
-					}
+	
+				wg.Add(1)
+	
+				go func(rec types.IngredientPair, output string) {
+					defer wg.Done()
 					
 					mu.Lock()
-					if !inQueue[ingredient] {
-						queue = append(queue, ingredient)
-						inQueue[ingredient] = true
+					if (!(graph.Graph[listRecipe[i][0]].Tier >= recipes.Tier || graph.Graph[listRecipe[i][1]].Tier >= recipes.Tier)){
+						*combos = append(*combos, types.Combo{
+							ID:     len(*combos),
+							ParentId: parent,
+							Inputs: []string{rec[0], rec[1]},
+							Output: output,
+						})
+						mu.Unlock()
+						
+
+
+						mu.Lock()
+						
+						queue = append(queue, rec)
+						nRecipe--
+						mu.Unlock()		
+
+	
+					}else{
+						mu.Unlock()
 					}
-					mu.Unlock()
-				}
-			}(recipe, currentNode)
+	
+				}(listRecipe[i], element)
+			}
+			wg.Wait()
+			nRecipe++
 		}
-		
-		wg.Wait()
+		parent++
 	}
 }

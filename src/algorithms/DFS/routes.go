@@ -2,7 +2,6 @@ package dfs
 
 import (
 
-	// "fmt"
 	"Tubes2_BE_FireBoyWaterGirl/src/internal/scrapper"
 	"encoding/json"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
 	"os"
-	"fmt"
+	// "fmt"
 )
 
 type Handler struct{
@@ -27,30 +26,25 @@ func (h *Handler) HandleGetRecipe(router *mux.Router) {
 	
 
 
-	router.HandleFunc("/dfs", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/api/dfs", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(recipes.ShowRecipes()))
 	}).Methods(http.MethodGet)
 
 
-	router.HandleFunc("/dfs/{target}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("/api/dfs/{target}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		target := string(unicode.ToUpper(rune(vars["target"][0]))) + vars["target"][1:]
-		fmt.Println((*recipes).Recipes[target])
-		cnt := 0
-		tree := GetRecipeTree(recipes, target)
-		
+		var combos []types.Combo
+		temp := types.IngredientPair{target}
+		GetRecipeDFS(recipes, temp, &combos)
+
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte("Nodenya: " + fmt.Sprintf("%d", cnt)))
-		// err := json.NewEncoder(w).Encode(tree)
-		SaveRecipeTreeToFile(*tree,"test.json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"combos": combos,
+		})
 
-		// if err != nil {
-		// 	http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-		// }
-		// response := GetRecipeBFS(recipe)
-
+		// SaveRecipeTreeToFile(*tree,"test.json")
 	}).Methods(http.MethodGet)
 }
 
