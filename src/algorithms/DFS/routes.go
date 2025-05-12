@@ -4,13 +4,11 @@ import (
 	"Tubes2_BE_FireBoyWaterGirl/src/internal/scrapper"
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 	"unicode"
-
 	"github.com/gorilla/mux"
 )
 
@@ -51,7 +49,6 @@ func (h *Handler) HandleGetRecipe(router *mux.Router) {
 		start := time.Now()
 		GetRecipeDFS(recipes, temp, &combos, &nRecipe)
 		duration := time.Since(start)
-		fmt.Printf("Waktunya dfs: %v\n", duration.Microseconds())
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
