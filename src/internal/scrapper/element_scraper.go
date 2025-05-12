@@ -144,6 +144,16 @@ func ScrapElementDetails(element *Element) error {
 				element.ImageUrl = imgSrc
 			}
 		}
+	}else{
+		imgEl = doc.Find("#mw-content-text > div.mw-content-ltr.mw-parser-output > aside > div.pi-image-collection.wds-tabber > div.wds-tab__content > figure > a > img")
+		imgSrc, exists := imgEl.Eq(1).Attr("src")
+		if exists && imgSrc != "" {
+			if strings.HasPrefix(imgSrc, "/") {
+				element.ImageUrl = "https://static.wikia.nocookie.net" + imgSrc
+			} else {
+				element.ImageUrl = imgSrc
+			}
+		}
 	}
 
 	return nil
