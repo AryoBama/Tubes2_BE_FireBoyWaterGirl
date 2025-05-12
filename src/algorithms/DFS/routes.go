@@ -1,15 +1,17 @@
 package dfs
 
 import (
-
 	"Tubes2_BE_FireBoyWaterGirl/src/internal/scrapper"
-	"encoding/json"
-	"net/http"
-	"unicode"
-	"github.com/gorilla/mux"
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"os"
-	// "fmt"
+	"strconv"
+	"time"
+	"unicode"
+
+	"github.com/gorilla/mux"
 )
 
 type Handler struct{
@@ -37,11 +39,25 @@ func (h *Handler) HandleGetRecipe(router *mux.Router) {
 		target := string(unicode.ToUpper(rune(vars["target"][0]))) + vars["target"][1:]
 		var combos []types.Combo
 		temp := types.IngredientPair{target}
-		GetRecipeDFS(recipes, temp, &combos)
+		nStr := r.URL.Query().Get("n")
+		nRecipe:=80
+
+		if nStr != "" {
+			if val, err := strconv.Atoi(nStr); err == nil && val >= 0 {
+				nRecipe = val - 1
+			}
+		}
+
+		start := time.Now()
+		GetRecipeDFS(recipes, temp, &combos, &nRecipe)
+		duration := time.Since(start)
+		fmt.Printf("Waktunya dfs: %v\n", duration.Microseconds())
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"combos": combos,
+			"duration": duration,
+			"nNode" : len(combos),
 		})
 
 		// SaveRecipeTreeToFile(*tree,"test.json")

@@ -16,10 +16,11 @@ func GetRecipeBFS(graph *types.RecipeGraph, target string, combos *[]types.Combo
 	for len(queue) > 0 {
 		currentNode := queue[0]
 		queue = queue[1:]
-
+		
 		for _, element := range currentNode{
+			
 
-			if graph.IsLeaf(element) {
+			if graph.IsLeaf(element) || element == "" {
 				continue
 			}
 			
@@ -30,7 +31,6 @@ func GetRecipeBFS(graph *types.RecipeGraph, target string, combos *[]types.Combo
 			listRecipe := graph.FilterTier(element)
 	
 			for i := 0; i < int(math.Min(float64(nRecipe),float64(len(listRecipe)))); i++{
-				
 	
 				wg.Add(1)
 	
