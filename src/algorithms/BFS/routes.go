@@ -3,11 +3,14 @@ package bfs
 import(
 		
 		// "fmt"
+	"strconv"
 	"net/http"
 	"github.com/gorilla/mux"
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
 	"encoding/json"
 	"unicode"
+	"fmt"
+	"time"
 )
 
 type Handler struct{
@@ -32,11 +35,26 @@ func (h *Handler) HandleGetRecipe(router *mux.Router) {
 		target := string(unicode.ToUpper(rune(vars["target"][0]))) + vars["target"][1:]
 		var combos []types.Combo
 
-		GetRecipeBFS(&h.Graph, target, &combos, 100)
+		
+		nStr := r.URL.Query().Get("n")
+		nRecipe:=1
+
+		if nStr != "" {
+			if val, err := strconv.Atoi(nStr); err == nil && val >= 0 {
+				nRecipe = val
+			}
+		}
+		
+		start := time.Now()
+		GetRecipeBFS(&h.Graph, target, &combos, nRecipe)
+		duration := time.Since(start)
+		fmt.Printf("Waktunya bfs: %v", duration.Nanoseconds())
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"combos": combos,
+			"duration": duration,
+			"nNode" : len(combos),
 		})
 	}).Methods(http.MethodGet)
 }
