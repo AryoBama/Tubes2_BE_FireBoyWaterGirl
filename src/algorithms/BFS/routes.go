@@ -50,7 +50,7 @@ func (h *Handler) HandleGetRecipe(router *mux.Router) {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"combos": combos,
-			"duration": duration,
+			"duration": duration.Microseconds(),
 			"nNode" : len(combos),
 		})
 	}).Methods(http.MethodGet)
