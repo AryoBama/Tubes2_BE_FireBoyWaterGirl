@@ -2,14 +2,12 @@ package bfs
 
 import(
 		
-		// "fmt"
 	"strconv"
 	"net/http"
 	"github.com/gorilla/mux"
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
 	"encoding/json"
 	"unicode"
-	"fmt"
 	"time"
 )
 
@@ -48,12 +46,11 @@ func (h *Handler) HandleGetRecipe(router *mux.Router) {
 		start := time.Now()
 		GetRecipeBFS(&h.Graph, target, &combos, nRecipe)
 		duration := time.Since(start)
-		fmt.Printf("Waktunya bfs: %v", duration.Nanoseconds())
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"combos": combos,
-			"duration": duration,
+			"duration": duration.Microseconds(),
 			"nNode" : len(combos),
 		})
 	}).Methods(http.MethodGet)
