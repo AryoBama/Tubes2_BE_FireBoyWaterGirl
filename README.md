@@ -38,9 +38,9 @@ Root: Elemen target yang ingin dicari akan menjadi root atau tujuan akhir dari p
 
 ## Getting Started
 1. Web telah dideploy sehingga Anda bisa menjalankannya dengan mengakses link berikut
- [Akses Web Frontend](https://fireboy-watergirl-frontend.delightfulglacier-589d39d2.southeastasia.azurecontainerapps.io/)
+ [Akses Web Fireboy Watergirl](https://fireboy-watergirl-frontend.delightfulglacier-589d39d2.southeastasia.azurecontainerapps.io/)
 
 ## Author
-Muh. Rusmin Nurwadin (13523068)
-Aryo Bama Wiratama (13523088)
-Reza Ahmad Syarif (13523119)
+- Muh. Rusmin Nurwadin (13523068)
+- Aryo Bama Wiratama (13523088)
+- Reza Ahmad Syarif (13523119)
