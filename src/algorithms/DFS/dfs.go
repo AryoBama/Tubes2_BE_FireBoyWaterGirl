@@ -3,54 +3,24 @@ package dfs
 import (
 	"Tubes2_BE_FireBoyWaterGirl/src/types"
 	"sync"
+	"time"
 )
 
 
 
-func GetRecipeDFS(graph *types.RecipeGraph, currentNode types.IngredientPair, combos *[]types.Combo, nRecipe *int) {
+func GetRecipeDFS(graph *types.RecipeGraph, currentNode types.IngredientPair, combos *[]types.Combo, nRecipe *int, progressChan chan types.Combo, isLive bool) {
 	
-	// parent := len(*combos) - 1
-	
-	// for _, element := range currentNode{
-	// 	if (graph.IsLeaf(element) || element == ""){
-	// 		continue
-
-	// 	}
-	// 	*nRecipe+=1
-		
-		
-	// 	pairs:= graph.FilterTier(element)
-	// 	for _, pair := range pairs {
-	// 		if(*nRecipe <= 0){
-	// 			continue
-	// 		}
-	// 		fmt.Println(pair)
-			
-	// 		ingredient1 := pair[0]
-	// 		ingredient2 := pair[1]
-			
-	// 		(*nRecipe)--
-	// 		if ingredient1 != "" && ingredient2 != "" {
-	// 			*combos = append(*combos, types.Combo{
-	// 				ID: len(*combos),
-	// 				ParentId: parent,
-	// 				Inputs: []string{ingredient1, ingredient2},
-	// 				Output: element,
-	// 			})
-	// 			GetRecipeDFS(graph, pair, combos, nRecipe)		
-	// 		}
-	// 	}
-	// }
 	var mutex sync.Mutex
 	var wg sync.WaitGroup
 
-	dfsWithConcurrency(graph, currentNode, combos, nRecipe, &mutex, &wg)
+	dfsWithConcurrency(graph, currentNode, combos, nRecipe, &mutex, &wg, progressChan, isLive)
 
 	wg.Wait()
+	close(progressChan)
 }
 
-func dfsWithConcurrency(graph *types.RecipeGraph, currentNode types.IngredientPair, combos *[]types.Combo, 
-                        nRecipe *int, mu *sync.Mutex, wg *sync.WaitGroup) {
+func dfsWithConcurrency(graph *types.RecipeGraph, currentNode types.IngredientPair, combos *[]types.Combo,
+	nRecipe *int, mu *sync.Mutex, wg *sync.WaitGroup, progressChan chan types.Combo, isLive bool) {
 
 	parent := len(*combos) - 1
 
@@ -78,17 +48,23 @@ func dfsWithConcurrency(graph *types.RecipeGraph, currentNode types.IngredientPa
 			mu.Unlock()
 			wg.Add(1)
 			go func(p types.IngredientPair) {
+			defer wg.Done()
 			mu.Lock()
 			comboID := len(*combos)
-			*combos = append(*combos, types.Combo{
+			newCombo := types.Combo{
 				ID:       comboID,
 				ParentId: parent,
 				Inputs:   []string{p[0], p[1]},
 				Output:   element,
-			})
+			}
+			*combos = append(*combos, newCombo)
 			mu.Unlock()
-			defer wg.Done()
-			dfsWithConcurrency(graph, p, combos, nRecipe, mu, wg)
+			if(isLive){
+				progressChan <- newCombo
+
+				time.Sleep(1000 * time.Millisecond)
+			}
+			dfsWithConcurrency(graph, p, combos, nRecipe, mu, wg, progressChan, isLive)
 			}(pair)
 		}
 	}

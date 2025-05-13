@@ -4,10 +4,12 @@ import (
 	"Tubes2_BE_FireBoyWaterGirl/src/algorithms/BFS"
 	"Tubes2_BE_FireBoyWaterGirl/src/algorithms/DFS"
 	"Tubes2_BE_FireBoyWaterGirl/src/internal/scrapper"
+	// "Tubes2_BE_FireBoyWaterGirl/src/types"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"encoding/json"
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -16,32 +18,36 @@ func main() {
 	// Membuat router baru
 	router := mux.NewRouter()
 
-	// Mendapatkan data yang sudah di-scrape atau fallback
 	data := scrapper.ScrapRecipe()
+	// reverseData := types.NewReverseGraph(data)
 
+	// for target, combination := range data.Graph{
+	// 	for _, recipe := range combination.Recipes{
+	// 		if (data.Graph[recipe[0]].Tier + 1 < data.Graph[target].Tier && data.Graph[recipe[1]].Tier + 1 < data.Graph[target].Tier){
+	// 			fmt.Printf("Target: %s\n", target)
+	// 			fmt.Printf("rec 1: %s,  rec 2: %s\n",recipe[0],recipe[1])
+	// 		}
+	// 	}
+	// }
+	
 	// Route untuk API utama
 	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(data)
 	})
 
-	// Menambahkan route untuk BFS dan DFS
 	bfsHandler := bfs.NewHandler(*data)
 	dfsHandler := dfs.NewHandler()
 
-	// Daftarkan route untuk BFS dan DFS
 	bfsHandler.HandleGetRecipe(router)
 	dfsHandler.HandleGetRecipe(router)
 
-	// Route untuk elemen
 	router.HandleFunc("/api/elements", func(w http.ResponseWriter, r *http.Request) {
-		// Set header CORS
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
-		// Untuk request OPTIONS (preflight CORS)
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
@@ -50,13 +56,11 @@ func main() {
 		// Scrape elemen
 		elements, err := scrapper.ScrapElements()
 		if err != nil {
-			// Jika scraping gagal, gunakan elemen fallback
 			log.Printf("Error scraping elements: %v", err)
 			log.Printf("Falling back to base elements")
 			// elements = scrapper.GetBaseElements()
 		}
 
-		// Jika jumlah elemen kurang dari 10, beri peringatan
 		if len(elements) < 10 {
 			log.Printf("Warning: Only scraped %d elements, might be incomplete", len(elements))
 		}
