@@ -10,12 +10,34 @@ type Element struct{
 	Tier int	`json:"tier"`
 }
 
+type RevElement struct{
+	Output string `json:"output"`
+	Partner string `json:"partner"`
+}
+
 type RecipeGraph struct {
     Graph map[string]Element
 }
 
+type ReverseGraph struct {
+	Graph map[string][]RevElement
+}
+
+
 func NewRecipeGraph() *RecipeGraph {
     return &RecipeGraph{Graph: make(map[string]Element)}
+}
+
+func NewReverseGraph(graph *RecipeGraph) *ReverseGraph{
+	result := ReverseGraph{Graph: make(map[string][]RevElement)}
+
+	for _, element := range graph.Graph{
+		for _, pair := range element.Recipes{
+			result.Graph[pair[0]] = append(result.Graph[pair[0]], RevElement{Output: element.Name, Partner: pair[1]})
+			result.Graph[pair[1]] = append(result.Graph[pair[1]], RevElement{Output: element.Name, Partner: pair[0]})
+		}
+	}
+	return &result
 }
 
 func (g *RecipeGraph) AddElement(result string, tier int){

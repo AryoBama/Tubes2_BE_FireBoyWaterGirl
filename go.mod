@@ -7,6 +7,8 @@ require (
 	github.com/rs/cors v1.11.1
 )
 
+require github.com/gorilla/websocket v1.5.3 
+
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/andybalholm/cascadia v1.3.3 // indirect
