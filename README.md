@@ -18,12 +18,14 @@ Setelah semua subblok diproses, gabungkan informasi dari subblok-subblok pada st
 
 ## Getting Started
 1. Web telah dideploy sehingga Anda bisa menjalankannya dengan mengakses link berikut
-   [website: ]https://fireboy-watergirl-frontend.delightfulglacier-589d39d2.southeastasia.azurecontainerapps.io/
+   ```bash
+   https://fireboy-watergirl-frontend.delightfulglacier-589d39d2.southeastasia.azurecontainerapps.io/
+   ```
 
 Namun, anda juga dapat menjalankannya secara lokal dengan cara berikut:
 1. Unduh atau klon repository ini
    ```bash
-   https://github.com/AryoBama/Tucil2_13523088.git
+   https://github.com/AryoBama/Tubes2_BE_FireBoyWaterGirl.git
    ```
 5. Pindah ke direktori project
    ```bash
